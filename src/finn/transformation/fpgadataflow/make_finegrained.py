@@ -101,6 +101,7 @@ class MakeFinegrained(Transformation):
                 return (model, True)
 
             elif n.op_type == "StreamingFCLayer_Batch" or n.op_type == "Vector_Vector_Activate_Batch":
+                insert_thresh_node = False
                 is_vvau = (n.op_type == "Vector_Vector_Activate_Batch")
                 node_input = n.input[0]
                 weight_input = n.input[1]
@@ -108,8 +109,52 @@ class MakeFinegrained(Transformation):
                 # if runtime-writable weights, can't use finegrained
                 if getCustomOp(n).get_nodeattr("runtime_writeable_weights") == 1:
                     continue
-                #TODO: decouple the activation if needed
-                assert getCustomOp(n).get_nodeattr("noActivation") == 1
+
+                # separate threshold batch 
+                n_inst = getCustomOp(n)
+                if n_inst.get_nodeattr("noActivation") != 1:
+                    insert_thresh_node = True
+                    actVal = n_inst.get_nodeattr("ActVal")
+                    inputDataType = n_inst.get_nodeattr("accDataType")
+                    if is_vvau:
+                        numChannels = n_inst.get_nodeattr("Channels")
+                    else :
+                        numChannels = n_inst.get_nodeattr("MH")
+                    PE = n_inst.get_nodeattr("PE")
+                    outputDataType =  n_inst.get_nodeattr("outputDataType")
+
+                    weightDataType = n_inst.get_nodeattr("accDataType")
+                    thl_threshold = n_inst.onnx_node.input[2]
+                    thl_input = node_output
+                    consumers = model.find_consumers(node_output)
+                    #TODO find thl_shape, modify prev shape if required
+                    thl_shape = n_inst.get_normal_output_shape()
+                    thl_output_tensor = helper.make_tensor_value_info(
+                          model.make_new_valueinfo_name(),
+                          TensorProto.FLOAT,
+                          thl_shape,
+                    )
+                    graph.value_info.append(thl_output_tensor)
+                    numSteps =  model.get_initializer(thl_input).shape[1]
+                    numInputVectors = list(model.get_tensor_shape(node.output[0]))
+                    new_thresh_node = helper.make_node(
+                           "Thresholding_Batch",
+                           [thl_input, thl_threshold],
+                           [thl_output_tensor.name],
+                           domain="finn.custom_op.fpgadataflow",
+                           backend="fpgadataflow",
+                           NumChannels=numChannels,
+                           PE=PE,
+                           numSteps=numSteps,
+                           inputDataType=inputDataType,
+                           weightDataType=weightDataType,  # will be set by MinimizeAccumulatorWidth
+                           outputDataType=outputDataType,
+                           numInputVectors=numInputVectors,
+                           ActVal=actVal,
+                           mem_mode=mmode,   # how to choose between const/decoupled for threshold
+                    )
+                    n_inst.set_nodeattr("noActivation", 1) 
+                    n_inst.set_nodeattr("outputDataType", n_inst.get_nodeattr("accDataType"))
                 # copy all relevant parameters to new node
                 mmode = getCustomOp(n).get_nodeattr("mem_mode")
                 if mmode == "const":
@@ -139,6 +184,14 @@ class MakeFinegrained(Transformation):
                     VVAU = 1 if is_vvau else 0,
                 )
                 graph.node.insert(node_ind, new_node)
+                if insert_thresh_node :
+                    graph.node.insert(node_ind + 1, new_thresh_node)
+                    # set dwc output tensor as new input tensor of second node
+                    consumer = consumers[0]
+                    for idx, inp in enumerate(consumer.input):
+                       if inp == node_output:
+                             consumer.input[idx] = thl_output_tensor.name
+                   
                 # remove old nodes
                 graph.node.remove(n)
                 return (model, True)
