@@ -279,10 +279,15 @@ def axis_scatter(new_hier, nsplits, obits, parent_hier=None):
             pad_bits = 8*obytes - obits
             pad_string = "" if pad_bits == 0 else ("%d'b" %(pad_bits) + "0"*pad_bits + ",")
             if num_mi>1:
-
+               if obytes > 512:
                   cmd.append("create_bd_cell -type ip -vlnv user.org:user:axis_split_core:1.0 %s" % (cell_name))
                   cmd.append("set_property -dict [list CONFIG.S_AXIS_TDATA_WIDTH_PAD {%d} CONFIG.C_AXIS_TDATA_WIDTH {%d} CONFIG.M_AXIS_TDATA_WIDTH_PAD {%d} CONFIG.C_NUM_MI_SLOTS {%d}] [get_bd_cells %s]" % (bcast_ibytes * 8, obits * num_mi, obytes * 8, num_mi, cell_name))
-                  cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/s_axis]" % (hier_name, cell_name))
+                  if split_hierarchical:
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/split_root_bcast/M%02d_AXIS] [get_bd_intf_pins %s/s_axis]" % (hier_name, i, cell_name))
+                  else:
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/s_axis]" % (hier_name, cell_name))
+                  for j in range(num_mi):
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/m_%d_axis] [get_bd_intf_pins %s/m_axis_%02d]" % (hier_name, 16*i+j, cell_name, j))
                else:
                   cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 %s" % (cell_name))
                   cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.NUM_MI {%d}] [get_bd_cells %s]" % (num_mi, cell_name))
