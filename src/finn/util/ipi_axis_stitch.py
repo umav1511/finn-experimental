@@ -176,29 +176,47 @@ def axis_bcast(new_hier, nreplicas, ibytes, parent_hier=None):
         rep_nbcast = int(math.ceil(nreplicas/16))
         #instantiate root broadcaster if nreplicas > 16
         if rep_hierarchical:
-            cell_name = "%s/rep_root_bcast" % (hier_name)
-            cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 %s" % (cell_name))
-            cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.NUM_MI {%d}] [get_bd_cells %s]" % (rep_nbcast, cell_name))
-            cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES {%d} CONFIG.S_TDATA_NUM_BYTES {%d}] [get_bd_cells %s]" % (ibytes, ibytes, cell_name))
-            cmd.append("connect_bd_net [get_bd_pins %s/aclk] [get_bd_pins %s/aclk]" % (hier_name, cell_name))
-            cmd.append("connect_bd_net [get_bd_pins %s/aresetn] [get_bd_pins %s/aresetn]" % (hier_name, cell_name))
-            cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, cell_name))
+           cell_name = "%s/rep_root_bcast" % (hier_name)
+           if ibytes > 512:
+              cmd.append("create_bd_cell -type ip -vlnv user.org:user:extend_broadcaster2:1.0 %s" % (cell_name))
+              cmd.append("set_property -dict [list CONFIG.C_AXIS_TDATA_WIDTH {%d} CONFIG.C_NUM_MI_SLOTS {%s}] [get_bd_cells %s]" % (ibytes * 8, rep_nbcast, cell_name))
+              cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/s_axis]" % (hier_name, cell_name))
+           else:
+              cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 %s" % (cell_name))
+              cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.NUM_MI {%d}] [get_bd_cells %s]" % (rep_nbcast, cell_name))
+              cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES {%d} CONFIG.S_TDATA_NUM_BYTES {%d}] [get_bd_cells %s]" % (ibytes, ibytes, cell_name))
+              cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, cell_name))
+           cmd.append("connect_bd_net [get_bd_pins %s/aclk] [get_bd_pins %s/aclk]" % (hier_name, cell_name))
+           cmd.append("connect_bd_net [get_bd_pins %s/aresetn] [get_bd_pins %s/aresetn]" % (hier_name, cell_name))
+
         #instantiate leaf broadcaster(s)
         for i in range(rep_nbcast):
             num_mi = min(16, nreplicas - i*16)
             if num_mi>1:
                 cell_name = "%s/rep_bcast_%d" % (hier_name, i)
-                cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 %s" % (cell_name))
-                cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.NUM_MI {%d}] [get_bd_cells %s]" % (num_mi, cell_name))
-                cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES {%d} CONFIG.S_TDATA_NUM_BYTES {%d}] [get_bd_cells %s]" % (ibytes, ibytes, cell_name))
+                if ibytes > 512:
+                   cmd.append("create_bd_cell -type ip -vlnv user.org:user:extend_broadcaster2:1.0 %s" % (cell_name))
+                   cmd.append("set_property -dict [list CONFIG.C_AXIS_TDATA_WIDTH {%d} CONFIG.C_NUM_MI_SLOTS {%s}] [get_bd_cells %s]" % (ibytes * 8, rep_nbcast, cell_name))
+                   if rep_hierarchical:
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/rep_root_bcast/M%02d_AXIS] [get_bd_intf_pins %s/s_axis]" % (hier_name, i, cell_name))
+                   else:
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/s_axis]" % (hier_name, cell_name))
+                   for j in range(num_mi):
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/m_%d_axis] [get_bd_intf_pins %s/m_axis_%02d]" % (hier_name, 16*i+j, cell_name, j))
+                else:
+
+                   cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 %s" % (cell_name))
+                   cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.NUM_MI {%d}] [get_bd_cells %s]" % (num_mi, cell_name))
+                   cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES {%d} CONFIG.S_TDATA_NUM_BYTES {%d}] [get_bd_cells %s]" % (ibytes, ibytes, cell_name))
+
+                   if rep_hierarchical:
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/rep_root_bcast/M%02d_AXIS] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, i, cell_name))
+                   else:
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, cell_name))
+                   for j in range(num_mi):
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/m_%d_axis] [get_bd_intf_pins %s/M%02d_AXIS]" % (hier_name, 16*i+j, cell_name, j))
                 cmd.append("connect_bd_net [get_bd_pins %s/aclk] [get_bd_pins %s/aclk]" % (hier_name, cell_name))
                 cmd.append("connect_bd_net [get_bd_pins %s/aresetn] [get_bd_pins %s/aresetn]" % (hier_name, cell_name))
-                if rep_hierarchical:
-                    cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/rep_root_bcast/M%02d_AXIS] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, i, cell_name))
-                else:
-                    cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, cell_name))
-                for j in range(num_mi):
-                    cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/m_%d_axis] [get_bd_intf_pins %s/M%02d_AXIS]" % (hier_name, 16*i+j, cell_name, j))
             else:
                 cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/rep_root_bcast/M%02d_AXIS] [get_bd_intf_pins %s/m_%d_axis]" % (hier_name, i, hier_name, 16*i))
 
@@ -234,17 +252,24 @@ def axis_scatter(new_hier, nsplits, obits, parent_hier=None):
         if split_hierarchical:
             root_bcast_obytes = int(math.ceil(16*obits/8))
             cell_name = "%s/split_root_bcast" % (hier_name)
-            cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 %s" % (cell_name))
-            cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.NUM_MI {%d}] [get_bd_cells %s]" % (split_nbcast, cell_name))
-            cmd.append("set_property -dict [list CONFIG.S_TDATA_NUM_BYTES {%d} CONFIG.M_TDATA_NUM_BYTES {%d}] [get_bd_cells %s]" % (ibytes, root_bcast_obytes, cell_name))
+            if ibytes > 512:
+               cmd.append("create_bd_cell -type ip -vlnv user.org:user:axis_split_core:1.0 %s" % (cell_name))
+               cmd.append("set_property -dict [list CONFIG.S_AXIS_TDATA_WIDTH_PAD {%d} CONFIG.C_AXIS_TDATA_WIDTH {%d} CONFIG.M_AXIS_TDATA_WIDTH_PAD {%d} CONFIG.C_NUM_MI_SLOTS {%d}] [get_bd_cells %s]" % (ibytes * 8, obits * n_splits, root_bcast_obytes * 8, split_nbcast, cell_name))
+               cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/s_axis]" % (hier_name, cell_name))
+            else:
+               cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 %s" % (cell_name))
+               cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.NUM_MI {%d}] [get_bd_cells %s]" % (split_nbcast, cell_name))
+               cmd.append("set_property -dict [list CONFIG.S_TDATA_NUM_BYTES {%d} CONFIG.M_TDATA_NUM_BYTES {%d}] [get_bd_cells %s]" % (ibytes, root_bcast_obytes, cell_name))
+               cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, cell_name))
+               for i in range(split_nbcast):
+                  chunk_bits = obits*min(16, nsplits-i*16)
+                  pad_bits = 8*root_bcast_obytes - chunk_bits
+                  pad_string = "" if pad_bits == 0 else ("%d'b" %(pad_bits) + "0"*pad_bits + ",")
+                  cmd.append("set_property -dict [list CONFIG.M%02d_TDATA_REMAP {%stdata[%d:%d]}] [get_bd_cells %s]" % (i, pad_string, i*16*obits+chunk_bits-1, i*16*obits, cell_name))   
             cmd.append("connect_bd_net [get_bd_pins %s/aclk] [get_bd_pins %s/aclk]" % (hier_name, cell_name))
             cmd.append("connect_bd_net [get_bd_pins %s/aresetn] [get_bd_pins %s/aresetn]" % (hier_name, cell_name))
-            cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, cell_name))
-            for i in range(split_nbcast):
-                chunk_bits = obits*min(16, nsplits-i*16)
-                pad_bits = 8*root_bcast_obytes - chunk_bits
-                pad_string = "" if pad_bits == 0 else ("%d'b" %(pad_bits) + "0"*pad_bits + ",")
-                cmd.append("set_property -dict [list CONFIG.M%02d_TDATA_REMAP {%stdata[%d:%d]}] [get_bd_cells %s]" % (i, pad_string, i*16*obits+chunk_bits-1, i*16*obits, cell_name))
+
+
         #instantiate leaf broadcaster(s)
         for i in range(split_nbcast):
             num_mi = min(16, nsplits - i*16)
@@ -254,17 +279,22 @@ def axis_scatter(new_hier, nsplits, obits, parent_hier=None):
             pad_bits = 8*obytes - obits
             pad_string = "" if pad_bits == 0 else ("%d'b" %(pad_bits) + "0"*pad_bits + ",")
             if num_mi>1:
-                cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 %s" % (cell_name))
-                cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.NUM_MI {%d}] [get_bd_cells %s]" % (num_mi, cell_name))
-                cmd.append("set_property -dict [list CONFIG.S_TDATA_NUM_BYTES {%d} CONFIG.M_TDATA_NUM_BYTES {%d}] [get_bd_cells %s]" % (bcast_ibytes, obytes, cell_name))
-                for j in range(num_mi):
-                    cmd.append("set_property -dict [list CONFIG.M%02d_TDATA_REMAP {%stdata[%d:%d]}] [get_bd_cells %s]" % (j, pad_string, (j+1)*obits-1, j*obits, cell_name))
-                if split_hierarchical:
-                    cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/split_root_bcast/M%02d_AXIS] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, i, cell_name))
-                else:
-                    cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, cell_name))
-                for j in range(num_mi):
-                    cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/m_%d_axis] [get_bd_intf_pins %s/M%02d_AXIS]" % (hier_name, 16*i+j, cell_name, j))
+
+                  cmd.append("create_bd_cell -type ip -vlnv user.org:user:axis_split_core:1.0 %s" % (cell_name))
+                  cmd.append("set_property -dict [list CONFIG.S_AXIS_TDATA_WIDTH_PAD {%d} CONFIG.C_AXIS_TDATA_WIDTH {%d} CONFIG.M_AXIS_TDATA_WIDTH_PAD {%d} CONFIG.C_NUM_MI_SLOTS {%d}] [get_bd_cells %s]" % (bcast_ibytes * 8, obits * num_mi, obytes * 8, num_mi, cell_name))
+                  cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/s_axis]" % (hier_name, cell_name))
+               else:
+                  cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_broadcaster:1.1 %s" % (cell_name))
+                  cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.NUM_MI {%d}] [get_bd_cells %s]" % (num_mi, cell_name))
+                  cmd.append("set_property -dict [list CONFIG.S_TDATA_NUM_BYTES {%d} CONFIG.M_TDATA_NUM_BYTES {%d}] [get_bd_cells %s]" % (bcast_ibytes, obytes, cell_name))
+                  for j in range(num_mi):
+                      cmd.append("set_property -dict [list CONFIG.M%02d_TDATA_REMAP {%stdata[%d:%d]}] [get_bd_cells %s]" % (j, pad_string, (j+1)*obits-1, j*obits, cell_name))
+                  if split_hierarchical:
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/split_root_bcast/M%02d_AXIS] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, i, cell_name))
+                  else:
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/s_axis] [get_bd_intf_pins %s/S_AXIS]" % (hier_name, cell_name))
+                  for j in range(num_mi):
+                      cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/m_%d_axis] [get_bd_intf_pins %s/M%02d_AXIS]" % (hier_name, 16*i+j, cell_name, j))
             else:
                 cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:axis_subset_converter:1.1 %s" % (cell_name))
                 cmd.append("set_property -dict [list CONFIG.M_TDATA_NUM_BYTES.VALUE_SRC USER CONFIG.S_TDATA_NUM_BYTES.VALUE_SRC USER] [get_bd_cells %s]" %(cell_name))
