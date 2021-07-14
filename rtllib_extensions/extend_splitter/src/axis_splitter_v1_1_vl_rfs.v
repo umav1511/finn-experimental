@@ -381,7 +381,7 @@ module axis_split_core #(
 //                                              C_AXIS_TDEST_WIDTH, C_AXIS_TUSER_WIDTH, 
 //                                              C_AXIS_SIGNAL_SET);
 
-localparam integer P_TPAYLOAD_WIDTH = C_AXIS_TDATA_WIDTH;
+localparam P_TPAYLOAD_WIDTH = C_AXIS_TDATA_WIDTH;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Wires/Reg declarations
@@ -432,9 +432,8 @@ assign s_axis_tvalid_i = (C_AXIS_SIGNAL_SET[0] == 1) ? (s_axis_tvalid & aresetn)
 //assign m_axis_tvalid = {C_NUM_MI_SLOTS{s_axis_tvalid_i}} & ~m_ready_d ;
 assign {m_axis_63_tvalid,m_axis_62_tvalid,m_axis_61_tvalid,m_axis_60_tvalid,m_axis_59_tvalid,m_axis_58_tvalid,m_axis_57_tvalid,m_axis_56_tvalid,m_axis_55_tvalid,m_axis_54_tvalid,m_axis_53_tvalid,m_axis_52_tvalid,m_axis_51_tvalid,m_axis_50_tvalid,m_axis_49_tvalid,m_axis_48_tvalid,m_axis_47_tvalid,m_axis_46_tvalid,m_axis_45_tvalid,m_axis_44_tvalid,m_axis_43_tvalid,m_axis_42_tvalid,m_axis_41_tvalid,m_axis_40_tvalid,m_axis_39_tvalid,m_axis_38_tvalid,m_axis_37_tvalid,m_axis_36_tvalid,m_axis_35_tvalid,m_axis_34_tvalid,m_axis_33_tvalid,m_axis_32_tvalid,m_axis_31_tvalid,m_axis_30_tvalid,m_axis_29_tvalid,m_axis_28_tvalid,m_axis_27_tvalid,m_axis_26_tvalid,m_axis_25_tvalid,m_axis_24_tvalid,m_axis_23_tvalid,m_axis_22_tvalid,m_axis_21_tvalid,m_axis_20_tvalid,m_axis_19_tvalid,m_axis_18_tvalid,m_axis_17_tvalid,m_axis_16_tvalid,m_axis_15_tvalid, m_axis_14_tvalid, m_axis_13_tvalid, m_axis_12_tvalid, m_axis_11_tvalid, m_axis_10_tvalid, m_axis_09_tvalid, m_axis_08_tvalid, m_axis_07_tvalid, m_axis_06_tvalid, m_axis_05_tvalid, m_axis_04_tvalid, m_axis_03_tvalid, m_axis_02_tvalid, m_axis_01_tvalid, m_axis_00_tvalid} = {C_NUM_MI_SLOTS{s_axis_tvalid_i}} & ~m_ready_d ;
 
+
 localparam integer ratio = C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS;
-
-
 genvar mi;
 generate
   for (mi = 0; mi < C_NUM_MI_SLOTS; mi = mi + 1) begin : MI_SLOT
@@ -447,10 +446,10 @@ generate
       .C_SIGNAL_SET     ( C_AXIS_SIGNAL_SET  ) 
     )
     util_vector2axis (
-      .TPAYLOAD ( s_axis_tpayload[mi*(C_AXIS_TDATA_WIDTH/C_NUM_MI_SLOTS)+: (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]),                                               
-      .TDATA    ( m_axis_tdata[mi*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) +: (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)] ) 
-      //.TSTRB    ( m_axis_tstrb[mi*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)/8+:C_AXIS_TDATA_WIDTH/8] ) ,
-      //.TKEEP    ( m_axis_tkeep[mi*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)/8+:C_AXIS_TDATA_WIDTH/8] ) ,
+      .TPAYLOAD ( s_axis_tpayload[mi*(ratio)+: (ratio)]),                                               
+      .TDATA    ( m_axis_tdata[mi*(ratio) +: (ratio)] ) 
+      //.TSTRB    ( m_axis_tstrb[mi*(ratio)/8+:C_AXIS_TDATA_WIDTH/8] ) ,
+      //.TKEEP    ( m_axis_tkeep[mi*(ratio)/8+:C_AXIS_TDATA_WIDTH/8] ) ,
       //.TLAST    ( m_axis_tlast[mi+:1]                                         ) ,
       //.TID      ( m_axis_tid  [mi*C_AXIS_TID_WIDTH+:C_AXIS_TID_WIDTH]         ) ,
       //.TDEST    ( m_axis_tdest[mi*C_AXIS_TDEST_WIDTH+:C_AXIS_TDEST_WIDTH]     ) ,
@@ -461,786 +460,786 @@ endgenerate
 
 
 
-assign m_axis_00_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[1*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-//assign m_axis_00_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+assign m_axis_00_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[1*(ratio) - 1 : 0 * (ratio)];
+//assign m_axis_00_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 
 
 
 if (C_NUM_MI_SLOTS > 1) begin
-   assign m_axis_01_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[2*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 1 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_01_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_01_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[2*(ratio) - 1 : 1 * (ratio)];
+   //assign m_axis_01_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 2) begin
-   assign m_axis_02_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[3*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 2 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_02_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_02_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[3*(ratio) - 1 : 2 * (ratio)];
+   //assign m_axis_02_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 3) begin
-   assign m_axis_03_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[4*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 3 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_03_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_03_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[4*(ratio) - 1 : 3 * (ratio)];
+   //assign m_axis_03_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 4) begin
-   assign m_axis_04_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[5*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 4 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_04_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_04_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[5*(ratio) - 1 : 4 * (ratio)];
+   //assign m_axis_04_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 5) begin
-   assign m_axis_05_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[6*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 5 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_05_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_05_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[6*(ratio) - 1 : 5 * (ratio)];
+  // assign m_axis_05_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 6) begin
-   assign m_axis_06_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[7*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 6 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_06_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_06_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[7*(ratio) - 1 : 6 * (ratio)];
+ //  assign m_axis_06_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 7) begin
-   assign m_axis_07_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[8*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 7 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_07_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_07_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[8*(ratio) - 1 : 7 * (ratio)];
+  // assign m_axis_07_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 8) begin
-   assign m_axis_08_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[9*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 8 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_08_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_08_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[9*(ratio) - 1 : 8 * (ratio)];
+  // assign m_axis_08_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 9) begin
-   assign m_axis_09_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[10*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 9 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_09_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_09_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[10*(ratio) - 1 : 9 * (ratio)];
+  // assign m_axis_09_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 10) begin
-   assign m_axis_10_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[11*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 10 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_10_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_10_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[11*(ratio) - 1 : 10 * (ratio)];
+  // assign m_axis_10_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 11) begin
-   assign m_axis_11_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[12*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 11 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_11_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_11_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[12*(ratio) - 1 : 11 * (ratio)];
+ //  assign m_axis_11_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 12) begin
-   assign m_axis_12_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[13*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 12 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_12_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_12_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[13*(ratio) - 1 : 12 * (ratio)];
+ //  assign m_axis_12_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 13) begin
-   assign m_axis_13_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[14*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 13 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_13_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_13_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[14*(ratio) - 1 : 13 * (ratio)];
+ //  assign m_axis_13_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 14) begin
-   assign m_axis_14_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[15*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 14 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_14_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_14_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[15*(ratio) - 1 : 14 * (ratio)];
+ //  assign m_axis_14_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 15) begin
-   assign m_axis_15_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[16*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 15 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_15_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_15_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[16*(ratio) - 1 : 15 * (ratio)];
+ //  assign m_axis_15_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 16) begin
-   assign m_axis_16_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[17*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 16 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_16_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_16_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[17*(ratio) - 1 : 16 * (ratio)];
+  // assign m_axis_16_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 17) begin
-   assign m_axis_17_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[18*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 17 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_17_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_17_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[18*(ratio) - 1 : 17 * (ratio)];
+ //  assign m_axis_17_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 18) begin
-   assign m_axis_18_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[19*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 18 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_18_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_18_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[19*(ratio) - 1 : 18 * (ratio)];
+ //  assign m_axis_18_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 19) begin
-   assign m_axis_19_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[20*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 19 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_19_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_19_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[20*(ratio) - 1 : 19 * (ratio)];
+ //  assign m_axis_19_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 20) begin
-   assign m_axis_20_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[21*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 20 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_20_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_20_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[21*(ratio) - 1 : 20 * (ratio)];
+ //  assign m_axis_20_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 21) begin
-   assign m_axis_21_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[22*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 21 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_21_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_21_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[22*(ratio) - 1 : 21 * (ratio)];
+ //  assign m_axis_21_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 22) begin
-   assign m_axis_22_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[23*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 22 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_22_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_22_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[23*(ratio) - 1 : 22 * (ratio)];
+ //  assign m_axis_22_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 23) begin
-   assign m_axis_23_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[24*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 23 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_23_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_23_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[24*(ratio) - 1 : 23 * (ratio)];
+ //  assign m_axis_23_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 24) begin
-   assign m_axis_24_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[25*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 24 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_24_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_24_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[25*(ratio) - 1 : 24 * (ratio)];
+ //  assign m_axis_24_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 25) begin
-   assign m_axis_25_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[26*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 25 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-//   assign m_axis_25_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_25_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[26*(ratio) - 1 : 25 * (ratio)];
+//   assign m_axis_25_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 26) begin
-   assign m_axis_26_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[27*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 26 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_26_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_26_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[27*(ratio) - 1 : 26 * (ratio)];
+ //  assign m_axis_26_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 27) begin
-   assign m_axis_27_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[28*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 27 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_27_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_27_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[28*(ratio) - 1 : 27 * (ratio)];
+ //  assign m_axis_27_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 28) begin
-   assign m_axis_28_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[29*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 28 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_28_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_28_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[29*(ratio) - 1 : 28 * (ratio)];
+ //  assign m_axis_28_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 29) begin
-   assign m_axis_29_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[30*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 29 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_29_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_29_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[30*(ratio) - 1 : 29 * (ratio)];
+ //  assign m_axis_29_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 30) begin
-   assign m_axis_30_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[31*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 30 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_30_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_30_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[31*(ratio) - 1 : 30 * (ratio)];
+ //  assign m_axis_30_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 31) begin
-   assign m_axis_31_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[32*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 31 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_31_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_31_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[32*(ratio) - 1 : 31 * (ratio)];
+ //  assign m_axis_31_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 32) begin
-   assign m_axis_32_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[33*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 32 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_32_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_32_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[33*(ratio) - 1 : 32 * (ratio)];
+  // assign m_axis_32_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 33) begin
-   assign m_axis_33_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[34*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 33 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_33_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_33_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[34*(ratio) - 1 : 33 * (ratio)];
+  // assign m_axis_33_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 34) begin
-   assign m_axis_34_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[35*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 34 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_34_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_34_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[35*(ratio) - 1 : 34 * (ratio)];
+  // assign m_axis_34_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 35) begin
-   assign m_axis_35_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[36*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 35 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_35_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_35_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[36*(ratio) - 1 : 35 * (ratio)];
+ //  assign m_axis_35_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 36) begin
-   assign m_axis_36_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[37*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 36 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_36_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_36_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[37*(ratio) - 1 : 36 * (ratio)];
+ //  assign m_axis_36_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 37) begin
-   assign m_axis_37_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[38*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 37 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_37_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_37_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[38*(ratio) - 1 : 37 * (ratio)];
+  // assign m_axis_37_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 38) begin
-   assign m_axis_38_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[39*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 38 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_38_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_38_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[39*(ratio) - 1 : 38 * (ratio)];
+  // assign m_axis_38_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 39) begin
-   assign m_axis_39_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[40*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 39 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_39_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_39_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[40*(ratio) - 1 : 39 * (ratio)];
+  // assign m_axis_39_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 40) begin
-   assign m_axis_40_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[41*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 40 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_40_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_40_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[41*(ratio) - 1 : 40 * (ratio)];
+ //  assign m_axis_40_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 41) begin
-   assign m_axis_41_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[42*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 41 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_41_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_41_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[42*(ratio) - 1 : 41 * (ratio)];
+ //  assign m_axis_41_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 42) begin
-   assign m_axis_42_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[43*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 42 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-//   assign m_axis_42_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_42_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[43*(ratio) - 1 : 42 * (ratio)];
+//   assign m_axis_42_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 43) begin
-   assign m_axis_43_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[44*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 43 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_43_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_43_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[44*(ratio) - 1 : 43 * (ratio)];
+ //  assign m_axis_43_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 44) begin
-   assign m_axis_44_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[45*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 44 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_44_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_44_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[45*(ratio) - 1 : 44 * (ratio)];
+ //  assign m_axis_44_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 45) begin
-   assign m_axis_45_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[46*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 45 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_45_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_45_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[46*(ratio) - 1 : 45 * (ratio)];
+  // assign m_axis_45_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 46) begin
-   assign m_axis_46_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[47*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 46 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_46_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_46_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[47*(ratio) - 1 : 46 * (ratio)];
+ //  assign m_axis_46_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 47) begin
-   assign m_axis_47_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[48*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 47 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_47_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_47_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[48*(ratio) - 1 : 47 * (ratio)];
+   //assign m_axis_47_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 48) begin
-   assign m_axis_48_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[49*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 48 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  /// assign m_axis_48_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_48_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[49*(ratio) - 1 : 48 * (ratio)];
+  /// assign m_axis_48_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 49) begin
-   assign m_axis_49_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[50*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 49 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_49_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_49_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[50*(ratio) - 1 : 49 * (ratio)];
+   //assign m_axis_49_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 50) begin
-   assign m_axis_50_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[51*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 50 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_50_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_50_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[51*(ratio) - 1 : 50 * (ratio)];
+  // assign m_axis_50_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 51) begin
-   assign m_axis_51_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[52*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 51 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_51_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_51_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[52*(ratio) - 1 : 51 * (ratio)];
+   //assign m_axis_51_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 52) begin
-   assign m_axis_52_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[53*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 52 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_52_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_52_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[53*(ratio) - 1 : 52 * (ratio)];
+   //assign m_axis_52_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 53) begin
-   assign m_axis_53_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[54*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 53 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_53_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_53_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[54*(ratio) - 1 : 53 * (ratio)];
+   //assign m_axis_53_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 54) begin
-   assign m_axis_54_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[55*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 54 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_54_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_54_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[55*(ratio) - 1 : 54 * (ratio)];
+  // assign m_axis_54_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 55) begin
-   assign m_axis_55_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[56*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 55 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_55_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_55_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[56*(ratio) - 1 : 55 * (ratio)];
+   //assign m_axis_55_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 56) begin
-   assign m_axis_56_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[57*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 56 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_56_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_56_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[57*(ratio) - 1 : 56 * (ratio)];
+   //assign m_axis_56_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 57) begin
-   assign m_axis_57_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[58*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 57 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-   //assign m_axis_57_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_57_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[58*(ratio) - 1 : 57 * (ratio)];
+   //assign m_axis_57_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 58) begin
-   assign m_axis_58_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[59*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 58 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_58_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_58_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[59*(ratio) - 1 : 58 * (ratio)];
+  // assign m_axis_58_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 59) begin
-   assign m_axis_59_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[60*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 59 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_59_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_59_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[60*(ratio) - 1 : 59 * (ratio)];
+  // assign m_axis_59_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 60) begin
-   assign m_axis_60_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[61*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 60 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_60_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_60_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[61*(ratio) - 1 : 60 * (ratio)];
+  // assign m_axis_60_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 61) begin
-   assign m_axis_61_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[62*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 61 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_61_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_61_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[62*(ratio) - 1 : 61 * (ratio)];
+  // assign m_axis_61_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 62) begin
-   assign m_axis_62_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[63*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 62 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
- //  assign m_axis_62_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_62_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[63*(ratio) - 1 : 62 * (ratio)];
+ //  assign m_axis_62_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 if (C_NUM_MI_SLOTS > 63) begin
-   assign m_axis_63_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[64*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 63 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
-  // assign m_axis_63_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS)] =  {(M_AXIS_TDATA_WIDTH_PAD - (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)){1'b0}};
+   assign m_axis_63_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[64*(ratio) - 1 : 63 * (ratio)];
+  // assign m_axis_63_tdata[M_AXIS_TDATA_WIDTH_PAD - 1 : (ratio)] =  {(M_AXIS_TDATA_WIDTH_PAD - (ratio)){1'b0}};
 end
 
 
 /*
 
 if (C_NUM_MI_SLOTS > 1) begin
-   assign m_axis_01_tdata[(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 0 ] = m_axis_tdata[2*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 1 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_01_tdata[(ratio) - 1 : 0 ] = m_axis_tdata[2*(ratio) - 1 : 1 * (ratio)];
 end else begin
-   assign m_axis_01_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_01_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 2) begin
-   assign m_axis_02_tdata = m_axis_tdata[3*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 2 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_02_tdata = m_axis_tdata[3*(ratio) - 1 : 2 * (ratio)];
 end else begin
-   assign m_axis_02_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_02_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 3) begin
-   assign m_axis_03_tdata = m_axis_tdata[4*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 3 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_03_tdata = m_axis_tdata[4*(ratio) - 1 : 3 * (ratio)];
 end else begin
-   assign m_axis_03_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_03_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 4) begin
-   assign m_axis_04_tdata = m_axis_tdata[5*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 4 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_04_tdata = m_axis_tdata[5*(ratio) - 1 : 4 * (ratio)];
 end else begin
-   assign m_axis_04_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_04_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 5) begin
-   assign m_axis_05_tdata = m_axis_tdata[6*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 5 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_05_tdata = m_axis_tdata[6*(ratio) - 1 : 5 * (ratio)];
 end else begin
-   assign m_axis_05_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_05_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 6) begin
-   assign m_axis_06_tdata = m_axis_tdata[7*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 6 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_06_tdata = m_axis_tdata[7*(ratio) - 1 : 6 * (ratio)];
 end else begin
-   assign m_axis_06_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_06_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 7) begin
-   assign m_axis_07_tdata = m_axis_tdata[8*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 7 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_07_tdata = m_axis_tdata[8*(ratio) - 1 : 7 * (ratio)];
 end else begin
-   assign m_axis_07_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_07_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 8) begin
-   assign m_axis_08_tdata = m_axis_tdata[9*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 8 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_08_tdata = m_axis_tdata[9*(ratio) - 1 : 8 * (ratio)];
 end else begin
-   assign m_axis_08_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_08_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 9) begin
-   assign m_axis_09_tdata = m_axis_tdata[10*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 9 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_09_tdata = m_axis_tdata[10*(ratio) - 1 : 9 * (ratio)];
 end else begin
-   assign m_axis_09_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_09_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 10) begin
-   assign m_axis_10_tdata = m_axis_tdata[11*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 10 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_10_tdata = m_axis_tdata[11*(ratio) - 1 : 10 * (ratio)];
 end else begin
-   assign m_axis_10_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_10_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 11) begin
-   assign m_axis_11_tdata = m_axis_tdata[12*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 11 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_11_tdata = m_axis_tdata[12*(ratio) - 1 : 11 * (ratio)];
 end else begin
-   assign m_axis_11_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_11_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 12) begin
-   assign m_axis_12_tdata = m_axis_tdata[13*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 12 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_12_tdata = m_axis_tdata[13*(ratio) - 1 : 12 * (ratio)];
 end else begin
-   assign m_axis_12_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_12_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 13) begin
-   assign m_axis_13_tdata = m_axis_tdata[14*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 13 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_13_tdata = m_axis_tdata[14*(ratio) - 1 : 13 * (ratio)];
 end else begin
-   assign m_axis_13_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_13_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 14) begin
-   assign m_axis_14_tdata = m_axis_tdata[15*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 14 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_14_tdata = m_axis_tdata[15*(ratio) - 1 : 14 * (ratio)];
 end else begin
-   assign m_axis_14_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_14_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 15) begin
-   assign m_axis_15_tdata = m_axis_tdata[16*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 15 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_15_tdata = m_axis_tdata[16*(ratio) - 1 : 15 * (ratio)];
 end else begin
-   assign m_axis_15_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_15_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 16) begin
-   assign m_axis_16_tdata = m_axis_tdata[17*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 16 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_16_tdata = m_axis_tdata[17*(ratio) - 1 : 16 * (ratio)];
 end else begin
-   assign m_axis_16_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_16_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 17) begin
-   assign m_axis_17_tdata = m_axis_tdata[18*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 17 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_17_tdata = m_axis_tdata[18*(ratio) - 1 : 17 * (ratio)];
 end else begin
-   assign m_axis_17_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_17_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 18) begin
-   assign m_axis_18_tdata = m_axis_tdata[19*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 18 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_18_tdata = m_axis_tdata[19*(ratio) - 1 : 18 * (ratio)];
 end else begin
-   assign m_axis_18_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_18_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 19) begin
-   assign m_axis_19_tdata = m_axis_tdata[20*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 19 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_19_tdata = m_axis_tdata[20*(ratio) - 1 : 19 * (ratio)];
 end else begin
-   assign m_axis_19_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_19_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 20) begin
-   assign m_axis_20_tdata = m_axis_tdata[21*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 20 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_20_tdata = m_axis_tdata[21*(ratio) - 1 : 20 * (ratio)];
 end else begin
-   assign m_axis_20_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_20_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 21) begin
-   assign m_axis_21_tdata = m_axis_tdata[22*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 21 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_21_tdata = m_axis_tdata[22*(ratio) - 1 : 21 * (ratio)];
 end else begin
-   assign m_axis_21_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_21_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 22) begin
-   assign m_axis_22_tdata = m_axis_tdata[23*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 22 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_22_tdata = m_axis_tdata[23*(ratio) - 1 : 22 * (ratio)];
 end else begin
-   assign m_axis_22_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_22_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 23) begin
-   assign m_axis_23_tdata = m_axis_tdata[24*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 23 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_23_tdata = m_axis_tdata[24*(ratio) - 1 : 23 * (ratio)];
 end else begin
-   assign m_axis_23_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_23_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 24) begin
-   assign m_axis_24_tdata = m_axis_tdata[25*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 24 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_24_tdata = m_axis_tdata[25*(ratio) - 1 : 24 * (ratio)];
 end else begin
-   assign m_axis_24_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_24_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 25) begin
-   assign m_axis_25_tdata = m_axis_tdata[26*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 25 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_25_tdata = m_axis_tdata[26*(ratio) - 1 : 25 * (ratio)];
 end else begin
-   assign m_axis_25_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_25_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 26) begin
-   assign m_axis_26_tdata = m_axis_tdata[27*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 26 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_26_tdata = m_axis_tdata[27*(ratio) - 1 : 26 * (ratio)];
 end else begin
-   assign m_axis_26_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_26_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 27) begin
-   assign m_axis_27_tdata = m_axis_tdata[28*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 27 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_27_tdata = m_axis_tdata[28*(ratio) - 1 : 27 * (ratio)];
 end else begin
-   assign m_axis_27_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_27_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 28) begin
-   assign m_axis_28_tdata = m_axis_tdata[29*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 28 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_28_tdata = m_axis_tdata[29*(ratio) - 1 : 28 * (ratio)];
 end else begin
-   assign m_axis_28_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_28_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 29) begin
-   assign m_axis_29_tdata = m_axis_tdata[30*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 29 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_29_tdata = m_axis_tdata[30*(ratio) - 1 : 29 * (ratio)];
 end else begin
-   assign m_axis_29_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_29_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 30) begin
-   assign m_axis_30_tdata = m_axis_tdata[31*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 30 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_30_tdata = m_axis_tdata[31*(ratio) - 1 : 30 * (ratio)];
 end else begin
-   assign m_axis_30_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_30_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 31) begin
-   assign m_axis_31_tdata = m_axis_tdata[32*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 31 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_31_tdata = m_axis_tdata[32*(ratio) - 1 : 31 * (ratio)];
 end else begin
-   assign m_axis_31_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_31_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 32) begin
-   assign m_axis_32_tdata = m_axis_tdata[33*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 32 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_32_tdata = m_axis_tdata[33*(ratio) - 1 : 32 * (ratio)];
 end else begin
-   assign m_axis_32_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_32_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 33) begin
-   assign m_axis_33_tdata = m_axis_tdata[34*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 33 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_33_tdata = m_axis_tdata[34*(ratio) - 1 : 33 * (ratio)];
 end else begin
-   assign m_axis_33_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_33_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 34) begin
-   assign m_axis_34_tdata = m_axis_tdata[35*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 34 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_34_tdata = m_axis_tdata[35*(ratio) - 1 : 34 * (ratio)];
 end else begin
-   assign m_axis_34_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_34_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 35) begin
-   assign m_axis_35_tdata = m_axis_tdata[36*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 35 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_35_tdata = m_axis_tdata[36*(ratio) - 1 : 35 * (ratio)];
 end else begin
-   assign m_axis_35_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_35_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 36) begin
-   assign m_axis_36_tdata = m_axis_tdata[37*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 36 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_36_tdata = m_axis_tdata[37*(ratio) - 1 : 36 * (ratio)];
 end else begin
-   assign m_axis_36_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_36_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 37) begin
-   assign m_axis_37_tdata = m_axis_tdata[38*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 37 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_37_tdata = m_axis_tdata[38*(ratio) - 1 : 37 * (ratio)];
 end else begin
-   assign m_axis_37_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_37_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 38) begin
-   assign m_axis_38_tdata = m_axis_tdata[39*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 38 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_38_tdata = m_axis_tdata[39*(ratio) - 1 : 38 * (ratio)];
 end else begin
-   assign m_axis_38_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_38_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 39) begin
-   assign m_axis_39_tdata = m_axis_tdata[40*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 39 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_39_tdata = m_axis_tdata[40*(ratio) - 1 : 39 * (ratio)];
 end else begin
-   assign m_axis_39_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_39_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 40) begin
-   assign m_axis_40_tdata = m_axis_tdata[41*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 40 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_40_tdata = m_axis_tdata[41*(ratio) - 1 : 40 * (ratio)];
 end else begin
-   assign m_axis_40_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_40_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 41) begin
-   assign m_axis_41_tdata = m_axis_tdata[42*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 41 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_41_tdata = m_axis_tdata[42*(ratio) - 1 : 41 * (ratio)];
 end else begin
-   assign m_axis_41_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_41_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 42) begin
-   assign m_axis_42_tdata = m_axis_tdata[43*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 42 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_42_tdata = m_axis_tdata[43*(ratio) - 1 : 42 * (ratio)];
 end else begin
-   assign m_axis_42_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_42_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 43) begin
-   assign m_axis_43_tdata = m_axis_tdata[44*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 43 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_43_tdata = m_axis_tdata[44*(ratio) - 1 : 43 * (ratio)];
 end else begin
-   assign m_axis_43_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_43_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 44) begin
-   assign m_axis_44_tdata = m_axis_tdata[45*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 44 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_44_tdata = m_axis_tdata[45*(ratio) - 1 : 44 * (ratio)];
 end else begin
-   assign m_axis_44_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_44_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 45) begin
-   assign m_axis_45_tdata = m_axis_tdata[46*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 45 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_45_tdata = m_axis_tdata[46*(ratio) - 1 : 45 * (ratio)];
 end else begin
-   assign m_axis_45_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_45_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 46) begin
-   assign m_axis_46_tdata = m_axis_tdata[47*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 46 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_46_tdata = m_axis_tdata[47*(ratio) - 1 : 46 * (ratio)];
 end else begin
-   assign m_axis_46_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_46_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 47) begin
-   assign m_axis_47_tdata = m_axis_tdata[48*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 47 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_47_tdata = m_axis_tdata[48*(ratio) - 1 : 47 * (ratio)];
 end else begin
-   assign m_axis_47_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_47_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 48) begin
-   assign m_axis_48_tdata = m_axis_tdata[49*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 48 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_48_tdata = m_axis_tdata[49*(ratio) - 1 : 48 * (ratio)];
 end else begin
-   assign m_axis_48_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_48_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 49) begin
-   assign m_axis_49_tdata = m_axis_tdata[50*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 49 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_49_tdata = m_axis_tdata[50*(ratio) - 1 : 49 * (ratio)];
 end else begin
-   assign m_axis_49_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_49_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 50) begin
-   assign m_axis_50_tdata = m_axis_tdata[51*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 50 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_50_tdata = m_axis_tdata[51*(ratio) - 1 : 50 * (ratio)];
 end else begin
-   assign m_axis_50_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_50_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 51) begin
-   assign m_axis_51_tdata = m_axis_tdata[52*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 51 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_51_tdata = m_axis_tdata[52*(ratio) - 1 : 51 * (ratio)];
 end else begin
    assign m_axis_51_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 52) begin
-   assign m_axis_52_tdata = m_axis_tdata[53*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 52 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_52_tdata = m_axis_tdata[53*(ratio) - 1 : 52 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
 end else begin
    assign m_axis_52_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 53) begin
-   assign m_axis_53_tdata = m_axis_tdata[54*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 53 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_53_tdata = m_axis_tdata[54*(ratio) - 1 : 53 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
 end else begin
    assign m_axis_53_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 54) begin
-   assign m_axis_54_tdata = m_axis_tdata[55*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 54 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_54_tdata = m_axis_tdata[55*(ratio) - 1 : 54 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
 end else begin
    assign m_axis_54_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 55) begin
-   assign m_axis_55_tdata = m_axis_tdata[56*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 55 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_55_tdata = m_axis_tdata[56*(ratio) - 1 : 55 * (ratio)];
 end else begin
-   assign m_axis_55_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_55_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 56) begin
-   assign m_axis_56_tdata = m_axis_tdata[57*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 56 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_56_tdata = m_axis_tdata[57*(ratio) - 1 : 56 * (ratio)];
 end else begin
-   assign m_axis_56_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_56_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 57) begin
-   assign m_axis_57_tdata = m_axis_tdata[58*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 57 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_57_tdata = m_axis_tdata[58*(ratio) - 1 : 57 * (ratio)];
 end else begin
-   assign m_axis_57_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_57_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 58) begin
-   assign m_axis_58_tdata = m_axis_tdata[59*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 58 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_58_tdata = m_axis_tdata[59*(ratio) - 1 : 58 * (ratio)];
 end else begin
-   assign m_axis_58_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_58_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 59) begin
-   assign m_axis_59_tdata = m_axis_tdata[60*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 59 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_59_tdata = m_axis_tdata[60*(ratio) - 1 : 59 * (ratio)];
 end else begin
-   assign m_axis_59_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_59_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 60) begin
-   assign m_axis_60_tdata = m_axis_tdata[61*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 60 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_60_tdata = m_axis_tdata[61*(ratio) - 1 : 60 * (ratio)];
 end else begin
-   assign m_axis_60_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_60_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 61) begin
-   assign m_axis_61_tdata = m_axis_tdata[62*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 61 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_61_tdata = m_axis_tdata[62*(ratio) - 1 : 61 * (ratio)];
 end else begin
-   assign m_axis_61_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_61_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 62) begin
-   assign m_axis_62_tdata = m_axis_tdata[63*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 62 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_62_tdata = m_axis_tdata[63*(ratio) - 1 : 62 * (ratio)];
 end else begin
-   assign m_axis_62_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_62_tdata = {(ratio){1'b0}};
 end
 
 if (C_NUM_MI_SLOTS > 63) begin
-   assign m_axis_63_tdata = m_axis_tdata[64*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 63 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)];
+   assign m_axis_63_tdata = m_axis_tdata[64*(ratio) - 1 : 63 * (ratio)];
 end else begin
-   assign m_axis_63_tdata = {(C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS){1'b0}};
+   assign m_axis_63_tdata = {(ratio){1'b0}};
 end
 
 */
 /*
-assign m_axis_01_tdata = m_axis_tdata[2*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 1 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_02_tdata = m_axis_tdata[3*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 2 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_03_tdata = m_axis_tdata[4*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 3 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_01_tdata = m_axis_tdata[2*(ratio) - 1 : 1 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_02_tdata = m_axis_tdata[3*(ratio) - 1 : 2 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_03_tdata = m_axis_tdata[4*(ratio) - 1 : 3 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
 
-assign m_axis_04_tdata = m_axis_tdata[5*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 4 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_05_tdata = m_axis_tdata[6*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 5 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_06_tdata = m_axis_tdata[7*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 6 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_07_tdata = m_axis_tdata[8*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 7 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_08_tdata = m_axis_tdata[9*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 8 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_09_tdata = m_axis_tdata[10*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 9 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_10_tdata = m_axis_tdata[11*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 10 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_11_tdata = m_axis_tdata[12*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 11 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_12_tdata = m_axis_tdata[13*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 12 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_13_tdata = m_axis_tdata[14*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 13 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_14_tdata = m_axis_tdata[15*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 14 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
-assign m_axis_15_tdata = m_axis_tdata[16*(C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) - 1 : 15 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_04_tdata = m_axis_tdata[5*(ratio) - 1 : 4 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_05_tdata = m_axis_tdata[6*(ratio) - 1 : 5 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_06_tdata = m_axis_tdata[7*(ratio) - 1 : 6 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_07_tdata = m_axis_tdata[8*(ratio) - 1 : 7 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_08_tdata = m_axis_tdata[9*(ratio) - 1 : 8 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_09_tdata = m_axis_tdata[10*(ratio) - 1 : 9 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_10_tdata = m_axis_tdata[11*(ratio) - 1 : 10 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_11_tdata = m_axis_tdata[12*(ratio) - 1 : 11 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_12_tdata = m_axis_tdata[13*(ratio) - 1 : 12 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_13_tdata = m_axis_tdata[14*(ratio) - 1 : 13 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_14_tdata = m_axis_tdata[15*(ratio) - 1 : 14 * (C_AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
+assign m_axis_15_tdata = m_axis_tdata[16*(ratio) - 1 : 15 * (__AXIS_TDATA_WIDTH/ C_NUM_MI_SLOTS)]
 */
 endmodule // axis_broadcaster_top
 
