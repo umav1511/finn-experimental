@@ -432,17 +432,18 @@ assign s_axis_tvalid_i = (C_AXIS_SIGNAL_SET[0] == 1) ? (s_axis_tvalid & aresetn)
 //assign m_axis_tvalid = {C_NUM_MI_SLOTS{s_axis_tvalid_i}} & ~m_ready_d ;
 assign {m_axis_63_tvalid,m_axis_62_tvalid,m_axis_61_tvalid,m_axis_60_tvalid,m_axis_59_tvalid,m_axis_58_tvalid,m_axis_57_tvalid,m_axis_56_tvalid,m_axis_55_tvalid,m_axis_54_tvalid,m_axis_53_tvalid,m_axis_52_tvalid,m_axis_51_tvalid,m_axis_50_tvalid,m_axis_49_tvalid,m_axis_48_tvalid,m_axis_47_tvalid,m_axis_46_tvalid,m_axis_45_tvalid,m_axis_44_tvalid,m_axis_43_tvalid,m_axis_42_tvalid,m_axis_41_tvalid,m_axis_40_tvalid,m_axis_39_tvalid,m_axis_38_tvalid,m_axis_37_tvalid,m_axis_36_tvalid,m_axis_35_tvalid,m_axis_34_tvalid,m_axis_33_tvalid,m_axis_32_tvalid,m_axis_31_tvalid,m_axis_30_tvalid,m_axis_29_tvalid,m_axis_28_tvalid,m_axis_27_tvalid,m_axis_26_tvalid,m_axis_25_tvalid,m_axis_24_tvalid,m_axis_23_tvalid,m_axis_22_tvalid,m_axis_21_tvalid,m_axis_20_tvalid,m_axis_19_tvalid,m_axis_18_tvalid,m_axis_17_tvalid,m_axis_16_tvalid,m_axis_15_tvalid, m_axis_14_tvalid, m_axis_13_tvalid, m_axis_12_tvalid, m_axis_11_tvalid, m_axis_10_tvalid, m_axis_09_tvalid, m_axis_08_tvalid, m_axis_07_tvalid, m_axis_06_tvalid, m_axis_05_tvalid, m_axis_04_tvalid, m_axis_03_tvalid, m_axis_02_tvalid, m_axis_01_tvalid, m_axis_00_tvalid} = {C_NUM_MI_SLOTS{s_axis_tvalid_i}} & ~m_ready_d ;
 
+localparam integer ratio = C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS;
 
 
 genvar mi;
 generate
   for (mi = 0; mi < C_NUM_MI_SLOTS; mi = mi + 1) begin : MI_SLOT
     axis_infrastructure_v1_1_0_util_vector2axis_simple #(
-      .C_TDATA_WIDTH    ( C_AXIS_TDATA_WIDTH / C_NUM_MI_SLOTS) ,
+      .C_TDATA_WIDTH    ( ratio) ,
       .C_TID_WIDTH      ( C_AXIS_TID_WIDTH   ) ,
       .C_TDEST_WIDTH    ( C_AXIS_TDEST_WIDTH ) ,
       .C_TUSER_WIDTH    ( C_AXIS_TUSER_WIDTH ) ,
-      .C_TPAYLOAD_WIDTH ( P_TPAYLOAD_WIDTH  /  C_NUM_MI_SLOTS) ,
+      .C_TPAYLOAD_WIDTH ( ratio) ,
       .C_SIGNAL_SET     ( C_AXIS_SIGNAL_SET  ) 
     )
     util_vector2axis (
