@@ -381,7 +381,7 @@ module axis_split_core #(
 //                                              C_AXIS_TDEST_WIDTH, C_AXIS_TUSER_WIDTH, 
 //                                              C_AXIS_SIGNAL_SET);
 
-localparam P_TPAYLOAD_WIDTH = C_AXIS_TDATA_WIDTH;
+localparam integer P_TPAYLOAD_WIDTH = C_AXIS_TDATA_WIDTH;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Wires/Reg declarations
