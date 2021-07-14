@@ -93,11 +93,11 @@ class ConvolutionInputGenerator_MMV(HLSCustomOp):
         ifm_ch = self.get_nodeattr("IFMChannels")
         stride = self.get_nodeattr("Stride")
         simd = self.get_nodeattr("SIMD")
-        pad = self.get_nodeattr("Padding")[0]
-        ofm_dim = compute_conv_output_dim(ifm_dim[0], k[0] , stride[0], pad*2)
+        ofm_dim0 = compute_conv_output_dim(ifm_dim[0], k[0] , stride[0], self.get_nodeattr("Padding")[0] + self.get_nodeattr("Padding")[2])
+        ofm_dim1 = compute_conv_output_dim(ifm_dim[1], k[1] , stride[1], self.get_nodeattr("Padding")[1] + self.get_nodeattr("Padding")[3])
         assert ifm_ch % simd == 0, "SIMD must divide IFMChannels"
         wf = int((k[0] *k[1] * ifm_ch)// simd)
-        folded_oshape = (1, ofm_dim, ofm_dim, wf, simd)
+        folded_oshape = (1, ofm_dim0, ofm_dim1, wf, simd)
         return folded_oshape
     def get_normal_input_shape(self):
 
@@ -113,9 +113,9 @@ class ConvolutionInputGenerator_MMV(HLSCustomOp):
         ifm_dim = self.get_nodeattr("IFMDim")
         ifm_ch = self.get_nodeattr("IFMChannels")
         stride = self.get_nodeattr("Stride")
-        pad = self.get_nodeattr("Padding")[0]
-        ofm_dim = compute_conv_output_dim(ifm_dim, k, stride, pad*2)
-        oshape = (1, ofm_dim[0], ofm_dim[1], k * k * ifm_ch)
+        ofm_dim0 = compute_conv_output_dim(ifm_dim[0], k[0] , stride[0], self.get_nodeattr("Padding")[0] + self.get_nodeattr("Padding")[2])
+        ofm_dim1 = compute_conv_output_dim(ifm_dim[1], k[1] , stride[1], self.get_nodeattr("Padding")[1] + self.get_nodeattr("Padding")[3])
+        oshape = (1, ofm_dim0, ofm_dim1, k[0] * k[1] * ifm_ch)
         return oshape 
 
     def get_instream_width(self):
@@ -206,7 +206,7 @@ class ConvolutionInputGenerator_MMV(HLSCustomOp):
         rst_name = self.get_verilog_top_module_intf_names()["rst"][0]
         dout_name = self.get_verilog_top_module_intf_names()["m_axis"][0][0]
         din_name = self.get_verilog_top_module_intf_names()["s_axis"][0][0]
-        cmd.append("create_bd_cell -type ip -vlnv user.org:user:mmv_swu_rtl:1.0 %s" % (node_name))
+        cmd.append("create_bd_cell -type ip -vlnv xilinx.com:xilinx:swu:1.0 %s" % (node_name))
         padding_height = self.get_nodeattr("Padding")[0]
         padding_width = self.get_nodeattr("Padding")[1]
         cmd.append("set_property -dict [list CONFIG.SIMD {%d} \
