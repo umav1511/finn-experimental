@@ -5398,14 +5398,19 @@ m_axis_50:m_axis_51:m_axis_52:m_axis_53:m_axis_54:m_axis_55:m_axis_56:m_axis_57:
       </xilinx:taxonomies>
       <xilinx:displayName>axis_split_core_v1_0</xilinx:displayName>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
-      <xilinx:coreRevision>2</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2021-07-14T14:09:41Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>3</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2021-07-14T14:10:23Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@6dcab094_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@5dc439ff_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@7c3bbd9a_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@1e466cf3_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@334c6594_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@16ee8a4a_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@14f18737_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3e722f56_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4b4c5ddb_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@60d5c020_ARCHIVE_LOCATION">/home/uma/Desktop/Graduation_project/repo/finn-experimental/finn-experimental/rtllib_extensions/extend_splitter</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
