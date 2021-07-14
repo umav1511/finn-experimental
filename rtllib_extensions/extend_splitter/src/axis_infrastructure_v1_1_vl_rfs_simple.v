@@ -74,7 +74,6 @@ module axis_infrastructure_v1_1_0_util_axis2vector_simple #
    parameter integer C_TUSER_WIDTH = 1,
    parameter integer C_TPAYLOAD_WIDTH = 44,
    parameter [31:0]  C_SIGNAL_SET  = 32'hFF
-
    )
   (
 ///////////////////////////////////////////////////////////////////////////////
