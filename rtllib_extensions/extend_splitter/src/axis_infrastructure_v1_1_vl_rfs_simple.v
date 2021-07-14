@@ -68,11 +68,11 @@ module axis_infrastructure_v1_1_0_util_axis2vector_simple #
 ///////////////////////////////////////////////////////////////////////////////
 // Parameter Definitions
 ///////////////////////////////////////////////////////////////////////////////
-   parameter integer C_TDATA_WIDTH = 32,
-   parameter integer C_TID_WIDTH   = 1,
-   parameter integer C_TDEST_WIDTH = 1,
-   parameter integer C_TUSER_WIDTH = 1,
-   parameter integer C_TPAYLOAD_WIDTH = 44,
+   parameter  C_TDATA_WIDTH = 32,
+   parameter  C_TID_WIDTH   = 1,
+   parameter  C_TDEST_WIDTH = 1,
+   parameter  C_TUSER_WIDTH = 1,
+   parameter  C_TPAYLOAD_WIDTH = 44,
    parameter [31:0]  C_SIGNAL_SET  = 32'hFF
    )
   (
@@ -183,11 +183,11 @@ module axis_infrastructure_v1_1_0_util_vector2axis_simple #
 ///////////////////////////////////////////////////////////////////////////////
 // Parameter Definitions
 ///////////////////////////////////////////////////////////////////////////////
-   parameter integer C_TDATA_WIDTH = 32,
-   parameter integer C_TID_WIDTH   = 1,
-   parameter integer C_TDEST_WIDTH = 1,
-   parameter integer C_TUSER_WIDTH = 1,
-   parameter integer C_TPAYLOAD_WIDTH = 44,
+   parameter  C_TDATA_WIDTH = 32,
+   parameter  C_TID_WIDTH   = 1,
+   parameter  C_TDEST_WIDTH = 1,
+   parameter  C_TUSER_WIDTH = 1,
+   parameter  C_TPAYLOAD_WIDTH = 44,
    parameter [31:0]  C_SIGNAL_SET  = 32'hFF
    // C_AXIS_SIGNAL_SET: each bit if enabled specifies which axis optional signals are present
    //   [0] => TREADY present
