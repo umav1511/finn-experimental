@@ -245,7 +245,6 @@ end
 endgenerate
 
 
-// according to my intuition. for no immv, this is what must be done, but i will leave it for now
 generate if(MMV_IN > 1) begin: use_immv1
 assign inc_pending_rd_last =  ofm_column_tracker[0] == OFMWidth - MMV_OUT 
                            && ofm_row_tracker[0] < OFMHeight - 1 - PADDING_HEIGHT 
@@ -265,18 +264,7 @@ assign inc_pending_rd_last = ofm_column_tracker[0] == OFMWidth - MMV_OUT
                            && ch_ptr == EFF_CHANNELS - 1;
 end
 endgenerate
-/*generate if (MMV_IN > 1 && (STRIDE == 1 || PADDING_WIDTH == 0)) begin : use_immv1
-   assign inc_pending_rd_last = ((ofm_column_tracker[0] == OFMWidth - MMV_OUT  && ofm_row_tracker[0] < OFMHeight - STRIDE - PADDING_HEIGHT && kh == KERNEL_HEIGHT - 1 && kw == 0)) && enaB_reg && ofm_row_tracker[0] >= PADDING_HEIGHT;
-end else if (STRIDE == 1 || PADDING_WIDTH == 0) begin : no_immv1
-    assign inc_pending_rd_last = (ofm_column_tracker[0] == OFMWidth - MMV_OUT && kh == KERNEL_HEIGHT - 1 && kw < (KERNEL_WIDTH - 1 - PADDING_WIDTH)) && enaB_reg && ofm_row_tracker[0] >= PADDING_HEIGHT && ofm_row_tracker[0] < OFMHeight - STRIDE - PADDING_HEIGHT;
-end else if (MMV_IN == 1 && STRIDE > 1 && PADDING_WIDTH > 0) begin : stride_and_padding_no_immv
-   assign inc_pending_rd_last = ofm_column_tracker[0] <= PADDING_WIDTH && enaB_reg && (kh == 0 && kw == KERNEL_WIDTH - 1) && ofm_row_tracker[0] >= PADDING_HEIGHT && ofm_row_tracker[0] < OFMHeight - 1 - PADDING_HEIGHT;
-end else if(STRIDE > 1 && MMV_IN > 1 && PADDING_WIDTH > 0) begin : stride_and_padding_and_mmv
-   assign inc_pending_rd_last = ofm_column_tracker[0] == OFMWidth - MMV_OUT && ofm_row_tracker[0] < OFMHeight - STRIDE - PADDING_HEIGHT && enaB_reg && kh == KERNEL_HEIGHT - 1 && kw == KERNEL_WIDTH - 2 && (mmv_col_tracker[0] + STRIDE*MMV_OUT < MMV_IN) && ch_ptr == EFF_CHANNELS - 1;   
-end else if (STRIDE > 1 && MMV_IN > 1) begin : stride_and_padding_and_mmv
-   assign inc_pending_rd_last = ofm_column_tracker[0] == OFMWidth - MMV_OUT && kh == KERNEL_HEIGHT - 1 && kw == 0  && ofm_row_tracker[0] >= PADDING_HEIGHT && ofm_row_tracker[0] < OFMHeight - 1 - PADDING_HEIGHT;
-end
-endgenerate*/
+
 
 wire [$clog2(KERNEL_HEIGHT*KERNEL_WIDTH*EFF_CHANNELS)-1:0]inc_start_pos;
 generate if (DWS == 0) begin : normal_cnv_st
