@@ -108,7 +108,7 @@ class Thresholding_MMV_Batch(Thresholding_Batch):
     def code_generation_ipi(self):
         cmd = []
         # add streamer if needed
-
+        tmem = self.calc_tmem()
         mmv = self.get_nodeattr("MMV")
         if mmv == 1:
            return super().code_generation_ipi()
@@ -133,45 +133,46 @@ class Thresholding_MMV_Batch(Thresholding_Batch):
                 "-vlnv xilinx.com:interface:axis_rtl:1.0 /%s/%s" % (node_name, str(din_name[0]))
             )
 
-            # instantiate a streamer and connect it to the HLS IP
-            strm_vlnv = "xilinx.com:user:memstream:1.0"
-            strm_inst = node_name + "_wstrm"
-            cmd.append(
-                "create_bd_cell -type ip -vlnv %s /%s/%s"
-                % (strm_vlnv, node_name, strm_inst)
-            )
-            cmd.append(
-                "set_property -dict [list "
-                "CONFIG.NSTREAMS {1} "
-                "CONFIG.MEM_DEPTH {%d} "
-                "CONFIG.MEM_WIDTH {%d} "
-                "CONFIG.MEM_INIT {%s} "
-                "CONFIG.RAM_STYLE {%s} "
-                "CONFIG.STRM0_DEPTH {%d} "
-                "CONFIG.STRM0_WIDTH {%d} "
-                "CONFIG.STRM0_OFFSET {0} "
-                "] [get_bd_cells /%s/%s]"
-                % (
-                    self.calc_tmem(),
-                    self.get_weightstream_width_padded(),
-                    self.get_nodeattr("code_gen_dir_ipgen") + "/",
-                    self.get_nodeattr("ram_style"),
-                    self.calc_tmem(),
-                    self.get_weightstream_width_padded(),
-                    node_name,
-                    strm_inst,
-                )
-            )
+            if tmem != 1:
+               # instantiate a streamer and connect it to the HLS IP
+               strm_vlnv = "xilinx.com:user:memstream:1.0"
+               strm_inst = node_name + "_wstrm"
+               cmd.append(
+                  "create_bd_cell -type ip -vlnv %s /%s/%s"
+                  % (strm_vlnv, node_name, strm_inst)
+               )
+               cmd.append(
+                 "set_property -dict [list "
+                 "CONFIG.NSTREAMS {1} "
+                 "CONFIG.MEM_DEPTH {%d} "
+                 "CONFIG.MEM_WIDTH {%d} "
+                 "CONFIG.MEM_INIT {%s} "
+                 "CONFIG.RAM_STYLE {%s} "
+                 "CONFIG.STRM0_DEPTH {%d} "
+                 "CONFIG.STRM0_WIDTH {%d} "
+                 "CONFIG.STRM0_OFFSET {0} "
+                 "] [get_bd_cells /%s/%s]"
+                 % (
+                     self.calc_tmem(),
+                     self.get_weightstream_width_padded(),
+                     self.get_nodeattr("code_gen_dir_ipgen") + "/",
+                     self.get_nodeattr("ram_style"),
+                     self.calc_tmem(),
+                     self.get_weightstream_width_padded(),
+                     node_name,
+                     strm_inst,
+                 )
+               )
 
-            #connect streamer clk, reset
-            cmd.append(
-                "connect_bd_net [get_bd_pins %s/%s] [get_bd_pins %s/%s/aclk]"
-                % (node_name, clk_name, node_name, strm_inst)
-            )
-            cmd.append(
-                "connect_bd_net [get_bd_pins %s/%s] [get_bd_pins %s/%s/aresetn]"
-                % (node_name, rst_name, node_name, strm_inst)
-            )
+               #connect streamer clk, reset
+               cmd.append(
+                 "connect_bd_net [get_bd_pins %s/%s] [get_bd_pins %s/%s/aclk]"
+                 % (node_name, clk_name, node_name, strm_inst)
+               )
+               cmd.append(
+                  "connect_bd_net [get_bd_pins %s/%s] [get_bd_pins %s/%s/aresetn]"
+                  % (node_name, rst_name, node_name, strm_inst)
+               )
 
             # instantiate input scatter
             iwidth = int(math.ceil(self.get_instream_width()/8))*8 * mmv
@@ -207,11 +208,22 @@ class Thresholding_MMV_Batch(Thresholding_Batch):
                 % (node_name, rst_name, node_name)
             )
 
-            # connect output of streamer to input of weight broadcaster
-            cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/%s/m_axis_0] "
+            if tmem != 1:
+               # connect output of streamer to input of weight broadcaster
+               cmd.append("connect_bd_intf_net [get_bd_intf_pins %s/%s/m_axis_0] "
                         "[get_bd_intf_pins %s/weight_transport/s_0_axis]"
                         % (node_name, strm_inst, node_name)
-            )
+               )
+            else:
+               dat_file = self.get_nodeattr("code_gen_dir_ipgen") + "/memblock_0.dat" 
+               df = open(dat_file, "r")
+               weight_val = df.read(self.get_weightstream_width_padded()//4)
+               cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 %s/xlconstant_data" % (node_name))
+               cmd.append("set_property -dict [list CONFIG.CONST_WIDTH {%d} CONFIG.CONST_VAL {%s}] [get_bd_cells %s/xlconstant_data]" % (self.get_weightstream_width_padded()//8, '0x' + weight_val, node_name))
+               cmd.append("connect_bd_net [get_bd_pins %s/xlconstant_data/dout] [get_bd_pins %s/weight_transport/s_0_axis_tdata]" % (node_name, node_name))
+               cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 %s/xlconstant_valid" % (node_name))
+               cmd.append("set_property -dict [list CONFIG.CONST_WIDTH {%d} CONFIG.CONST_VAL {%s}] [get_bd_cells %s/xlconstant_valid]" % (1, 1, node_name)) 
+               cmd.append("connect_bd_net [get_bd_pins %s/xlconstant_valid/dout] [get_bd_pins %s/weight_transport/s_0_axis_tvalid]" % (node_name, node_name))
 
             # instantiate output gather
             cmd += axis_gather_bcast_scatter("out_transport", mmv, 1, 1, owidth, parent_hier=node_name)

@@ -784,7 +784,7 @@ class StreamingFCLayer_MMV_FG_Batch(HLSCustomOp):
         synapse_fold = int(self.get_nodeattr("MW") // simd)
         wp = self.get_weight_datatype().bitwidth()
         node_name = self.onnx_node.name
-
+        wmem = self.calc_wmem
         # create a hierarchy for this layer, with the same port names
         clk_name = self.get_verilog_top_module_intf_names()["clk"][0]
         rst_name = self.get_verilog_top_module_intf_names()["rst"][0]
@@ -807,17 +807,18 @@ class StreamingFCLayer_MMV_FG_Batch(HLSCustomOp):
         wwidth=self.get_weightstream_width()
         wwidth_padded=roundup_to_integer_multiple(wwidth, 8)
 
-        # weight transport subhierarchy
-        cmd += axis_gather_bcast_scatter("weight_transport", 1, mmv, pe, wwidth, parent_hier=node_name)
-        #connect it to input/clk/rst
-        cmd.append(
-            "connect_bd_net [get_bd_pins %s/%s] [get_bd_pins %s/weight_transport/aclk]"
-            % (node_name, clk_name, node_name)
-        )
-        cmd.append(
-            "connect_bd_net [get_bd_pins %s/%s] [get_bd_pins %s/weight_transport/aresetn]"
-            % (node_name, rst_name, node_name)
-        )
+        if wmem != 1: 
+           # weight transport subhierarchy
+           cmd += axis_gather_bcast_scatter("weight_transport", 1, mmv, pe, wwidth, parent_hier=node_name)
+           #connect it to input/clk/rst
+           cmd.append(
+              "connect_bd_net [get_bd_pins %s/%s] [get_bd_pins %s/weight_transport/aclk]"
+              % (node_name, clk_name, node_name)
+           )
+           cmd.append(
+              "connect_bd_net [get_bd_pins %s/%s] [get_bd_pins %s/weight_transport/aresetn]"
+              % (node_name, rst_name, node_name)
+           )
 
         # add streamer if needed and make connections
         mem_mode = self.get_nodeattr("mem_mode")
@@ -833,7 +834,7 @@ class StreamingFCLayer_MMV_FG_Batch(HLSCustomOp):
                         "[get_bd_intf_pins %s/weight_transport/s_0_axis]"
                         % (node_name, w_name, node_name)
             )
-        else:
+        elif wmem != 1:
             # instantiate a streamer (or constant) and connect it to the HLS IP
             strm_vlnv = "xilinx.com:user:memstream:1.0"
             strm_inst = "weight_streamer"
@@ -1009,11 +1010,24 @@ class StreamingFCLayer_MMV_FG_Batch(HLSCustomOp):
                     "[get_bd_intf_pins %s/PE_%d_%d/%s]"
                     % (node_name, m*pe+i, node_name, m, i, dout_name)
                 )
-                cmd.append(
-                    "connect_bd_intf_net [get_bd_intf_pins %s/weight_transport/m_%d_%d_axis] "
-                    "[get_bd_intf_pins %s/PE_%d_%d/weights_V_V]"
-                    % (node_name, m, i, node_name, m, i)
-                )
+                if wmem != 1: 
+                   cmd.append(
+                      "connect_bd_intf_net [get_bd_intf_pins %s/weight_transport/m_%d_%d_axis] "
+                      "[get_bd_intf_pins %s/PE_%d_%d/weights_V_V]"
+                      % (node_name, m, i, node_name, m, i)
+                   )
+                else:
+                  dat_file = self.get_nodeattr("code_gen_dir_ipgen") + "/memblock_0.dat" 
+                  df = open(dat_file, "r")
+                  for i in range(pe):
+                    cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 %s/xlconstant_data_%d_%02d" % (node_name, m, i))
+                    df.seek((pe - 1 - i)*((simd*wp)//4), 0)
+                    weight_val = df.read((simd*wp)//4)
+                    cmd.append("set_property -dict [list CONFIG.CONST_WIDTH {%d} CONFIG.CONST_VAL {%s}] [get_bd_cells %s/xlconstant_data_%d_%02d]" % (wwidth, '0x' + weight_val, node_name, m, i))
+                    cmd.append("connect_bd_net [get_bd_pins %s/xlconstant_data_%d_%02d/dout] [get_bd_pins %s/%s_%d_%d/weights_V_V_TDATA]" % (node_name, m, i, node_name, node_name, m, i))
+                    cmd.append("create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 %s/xlconstant_valid_%d_%02d" % (node_name, m, i))
+                    cmd.append("set_property -dict [list CONFIG.CONST_WIDTH {%d} CONFIG.CONST_VAL {%s}] [get_bd_cells %s/xlconstant_valid_%d_%02d]" % (1, 1, node_name, m, i)) 
+                    cmd.append("connect_bd_net [get_bd_pins %s/xlconstant_valid_%d_%02d/dout] [get_bd_pins %s/%s_%d_%d/weights_V_V_TVALID]" % (node_name, m, i, node_name, node_name, m, i))
 
         cmd.append(
             "connect_bd_intf_net [get_bd_intf_pins %s/acc_transport/m_0_0_axis] "
