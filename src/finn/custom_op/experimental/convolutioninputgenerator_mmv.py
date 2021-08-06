@@ -206,7 +206,7 @@ class ConvolutionInputGenerator_MMV(HLSCustomOp):
         rst_name = self.get_verilog_top_module_intf_names()["rst"][0]
         dout_name = self.get_verilog_top_module_intf_names()["m_axis"][0][0]
         din_name = self.get_verilog_top_module_intf_names()["s_axis"][0][0]
-        cmd.append("create_bd_cell -type ip -vlnv user.org:user:mmv_swu_rtl:1.0 %s" % (node_name))
+        cmd.append("create_bd_cell -type ip -vlnv user.org:user:mmv_swu_rtl_limited:1.0 %s" % (node_name))
         padding_height = self.get_nodeattr("Padding")[0]
         padding_width = self.get_nodeattr("Padding")[1]
         cmd.append("set_property -dict [list CONFIG.SIMD {%d} \
